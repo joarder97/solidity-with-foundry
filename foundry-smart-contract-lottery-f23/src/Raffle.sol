@@ -38,6 +38,7 @@ contract Raffle is VRFConsumerBaseV2 {
     error Raffle__NotEnoughEthSent();
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
+    error Raffle__UpKeepNotNeeded(uint256 balance, uint256 players, uint256 state);
 
     enum RaffleState {
         OPEN,
@@ -95,14 +96,31 @@ contract Raffle is VRFConsumerBaseV2 {
         emit EnteredRaffle(msg.sender);
     }
 
-    function pickWinner() external {
-        if ((block.timestamp - s_lastTimeStamp) < i_interval) {
-            revert();
+    function checkUpKeep(
+        bytes memory /* checkData */
+    ) public view returns (bool upKeepNeeded, bytes memory /* performData */) {
+        bool timeHasPassed = ((block.timestamp - s_lastTimeStamp) >= i_interval);
+        bool isOpen = RaffleState.OPEN == s_raffleState;
+        bool hasBalance = address(this).balance > 0;
+        bool hasPlayers = s_players.length > 0;
+        upKeepNeeded = (timeHasPassed && isOpen && hasBalance && hasPlayers);
+        return (upKeepNeeded, "0x00");
+
+    }
+
+    function performUpKeep(bytes calldata /* performData */) external {
+        (bool upKeepNeeded, ) = checkUpKeep("");
+        if (!upKeepNeeded) {
+            revert Raffle__UpKeepNotNeeded(
+                address(this).balance,
+                s_players.length,
+                uint256(s_raffleState)
+            );
         }
 
         s_raffleState = RaffleState.CALULATING;
 
-        uint256 requestId = i_vrfCoordinator.requestRandomWords(
+        i_vrfCoordinator.requestRandomWords(
             i_gasLane,
             i_subscriptionId,
             REQUEST_CONFIRMATIONS,
@@ -111,7 +129,7 @@ contract Raffle is VRFConsumerBaseV2 {
         );
     }
 
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
+    function fulfillRandomWords(uint256 /*requestId */, uint256[] memory randomWords) internal override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable winner = s_players[indexOfWinner];
         s_recentWinner = winner;
