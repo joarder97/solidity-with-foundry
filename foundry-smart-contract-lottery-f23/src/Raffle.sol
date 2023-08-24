@@ -105,7 +105,6 @@ contract Raffle is VRFConsumerBaseV2 {
         bool hasPlayers = s_players.length > 0;
         upKeepNeeded = (timeHasPassed && isOpen && hasBalance && hasPlayers);
         return (upKeepNeeded, "0x00");
-
     }
 
     function performUpKeep(bytes calldata /* performData */) external {
@@ -143,5 +142,17 @@ contract Raffle is VRFConsumerBaseV2 {
         if (!success) {
             revert Raffle__TransferFailed();
         }
+    }
+
+    function getEnteranceFee() external view returns(uint256) {
+        return i_entranceFee;
+    }
+
+    function getRaffleState() external view returns(RaffleState) {
+        return s_raffleState;
+    }
+
+    function getPlayer(uint256 indexOfPlayer) external view returns(address) {
+        return s_players[indexOfPlayer];
     }
 }
