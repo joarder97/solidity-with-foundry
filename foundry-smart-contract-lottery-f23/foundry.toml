@@ -2,9 +2,10 @@
 src = "src"
 out = "out"
 libs = ["lib"]
-remappings = [
-    '@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/',
-    'forge-std = "forge-std/solc/";'
-];
+remappings = ['@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/', '@solmate=lib/solmate/src/', 'forge-std/=lib/forge-std/src/']
+
+
+[rpc_endpoints]
+sepolia = "${SEPOLIA_RPC_URL}"
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
