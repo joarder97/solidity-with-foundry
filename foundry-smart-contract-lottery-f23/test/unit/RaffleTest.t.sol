@@ -70,6 +70,61 @@ contract RaffleTest is Test {
     }
 
     function testCantEnterWhenRaffleIsCalculating() public {
-        
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        raffle.performUpKeep("");
+
+        vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+    }
+
+    /////////////////
+    ///checkUpKeep///
+    /////////////////
+    
+    function testCheckUpKeepReturnsFalseIfItHasNoBalance() public {
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+
+        (bool upKeepNeeded, ) = raffle.checkUpKeep("");
+        assert(!upKeepNeeded);
+    }
+
+    function testCheckUpKeepReturnsFalseIfRaffleNotOpen() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        raffle.performUpKeep("");
+        (bool upKeepNeeded, ) = raffle.checkUpKeep("");
+        console.log("upKeepNeeded", upKeepNeeded);
+        assert(!upKeepNeeded);
+    }
+
+    //testCheckUpKeepReturnsFalseIfEnoughTimeHasntPassed
+    function testCheckUpKeepReturnsFalseIfEnoughTimeHasntPassed() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        (bool upKeepNeeded, ) = raffle.checkUpKeep("");
+        assert(!upKeepNeeded);
+    }
+
+    function testCheckUpkeepReturnsTrueWhenParametersGood() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        (bool upKeepNeeded, ) = raffle.checkUpKeep("");
+        assert(upKeepNeeded);
+    }
+
+    function testPerformUpKeepCanOnlyRunIfCheckUpKeepIsTrue() public {
+        vm.prank();
+        raffle.enterRaffle{value: enterRaffle}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.count + 1);
     }
 }
