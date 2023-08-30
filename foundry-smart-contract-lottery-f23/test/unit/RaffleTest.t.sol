@@ -38,7 +38,8 @@ contract RaffleTest is Test {
             gasLane,
             subscriptionId,
             callbackGasLimit,
-            link
+            link,
+            
         ) = helperConfig.activeNetworkConfig();
         vm.deal(PLAYER, STARTING_USER_BALANCE);
     }
@@ -132,17 +133,34 @@ contract RaffleTest is Test {
         raffle.performUpKeep("");
     }
 
-    function testPerformUpKeepRevertsIfCheckUpKeepIsFalse() public {
-        //arrange
+    // function testPerformUpKeepRevertsIfCheckUpKeepIsFalse() public {
+    //     //arrange
+    //     uint256 currentBalance = 0;
+    //     uint256 numPlayers = 0;
+    //     Raffle.RaffleState raffleState = raffle.getRaffleState();
+    //     vm.expectRevert(
+    //         abi.encodeWithSelector(
+    //             Raffle.Raffle__UpKeepNotNeeded.selector,
+    //             currentBalance,
+    //             numPlayers,
+    //             raffleState
+    //         )
+    //     );
+    //     raffle.performUpKeep("");
+    // }
+
+    function testPerformUpkeepRevertsIfCheckUpkeepIsFalse() public {
+        // Arrange
         uint256 currentBalance = 0;
         uint256 numPlayers = 0;
-        uint256 raffleState = 0;
+        Raffle.RaffleState rState = raffle.getRaffleState();
+        // Act / Assert
         vm.expectRevert(
             abi.encodeWithSelector(
                 Raffle.Raffle__UpKeepNotNeeded.selector,
                 currentBalance,
                 numPlayers,
-                raffleState
+                rState
             )
         );
         raffle.performUpKeep("");
@@ -168,7 +186,14 @@ contract RaffleTest is Test {
         assert(uint256(rState) > 0);
     }
 
-    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpKeep(uint256 randomRequestId) public raffleEnteredAndTimePassed {
+    modifier skipFork() {
+        if(block.chainid != 31337) {
+            return;
+        }
+        _;
+    }
+
+    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpKeep(uint256 randomRequestId) public raffleEnteredAndTimePassed skipFork {
         vm.expectRevert("nonexistent request");
         VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
             randomRequestId, 
@@ -176,7 +201,7 @@ contract RaffleTest is Test {
         );
     }
 
-    function testFulfillRandomWordsPicksAWinnerResetsAndSendsMoney() public raffleEnteredAndTimePassed {
+    function testFulfillRandomWordsPicksAWinnerResetsAndSendsMoney() public raffleEnteredAndTimePassed skipFork {
         uint256 additionaEntrants = 5;
         uint256 startingIndex = 1;
 
@@ -205,10 +230,10 @@ contract RaffleTest is Test {
             address(raffle)
         );
 
-        // assert(uint256(raffle.getRaffleState()) == 0);
-        // assert(raffle.getRecentWinner() != address(0));
+        assert(uint256(raffle.getRaffleState()) == 0);
+        assert(raffle.getRecentWinner() != address(0));
         // assert(raffle.getLengthOfPlayers == 0);
-        // assert(previousTimeStamp < raffle.getLastTimeStamp());
+        assert(previousTimeStamp < raffle.getLastTimeStamp());
         assert(raffle.getRecentWinner().balance == STARTING_USER_BALANCE + prize - entranceFee);
     }
 }
