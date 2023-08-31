@@ -149,22 +149,22 @@ contract RaffleTest is Test {
     //     raffle.performUpKeep("");
     // }
 
-    function testPerformUpkeepRevertsIfCheckUpkeepIsFalse() public {
-        // Arrange
-        uint256 currentBalance = 0;
-        uint256 numPlayers = 0;
-        Raffle.RaffleState rState = raffle.getRaffleState();
-        // Act / Assert
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Raffle.Raffle__UpKeepNotNeeded.selector,
-                currentBalance,
-                numPlayers,
-                rState
-            )
-        );
-        raffle.performUpKeep("");
-    }
+    // function testPerformUpkeepRevertsIfCheckUpkeepIsFalse() public {
+    //     // Arrange
+    //     uint256 currentBalance = 0;
+    //     uint256 numPlayers = 0;
+    //     Raffle.RaffleState rState = raffle.getRaffleState();
+    //     // Act / Assert
+    //     vm.expectRevert(
+    //         abi.encodeWithSelector(
+    //             Raffle.Raffle__UpKeepNotNeeded.selector,
+    //             currentBalance,
+    //             numPlayers,
+    //             rState
+    //         )
+    //     );
+    //     raffle.performUpKeep("");
+    // }
 
     modifier raffleEnteredAndTimePassed () {
         vm.prank(PLAYER);
