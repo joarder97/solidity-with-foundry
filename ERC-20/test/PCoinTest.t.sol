@@ -16,14 +16,28 @@ contract PCoinTest is Test {
     uint256 public constant STARTING_USER_BALANCE = 100 ether;
 
     function setUp() public {
-        deployer = new DeployPCoin();
-        pCoin = deployer.run();
+        deployPCoin = new DeployPCoin();
+        pCoin = deployPCoin.run();
 
-        vm.prank(address(deployer));
+        vm.prank(msg.sender);
         pCoin.transfer(bob, STARTING_USER_BALANCE);
     }
 
     function testBobBalance() public {
-        assert(STARTING_USER_BALANCE, pCoin.balanceOf(bob));
+        assertEq(STARTING_USER_BALANCE, pCoin.balanceOf(bob));
+    }
+
+    function testAllowancesWorks() public {
+        uint256 initialAllowance = 1000;
+
+        vm.prank(bob);
+        pCoin.approve(alice, initialAllowance);
+
+        uint256 transferAmount = 500;
+        vm.prank(alice);
+        pCoin.transferFrom(bob, alice, 500);
+
+        assertEq(pCoin.balanceOf(alice), transferAmount);
+        assertEq(pCoin.balanceOf(bob), STARTING_USER_BALANCE - transferAmount);
     }
 }
