@@ -33,7 +33,8 @@ contract MintBasicNft is Script {
 
 //     function mintNftOnContract(address moodNftAddress) public {
 //         vm.startBroadcast();
-//         MoodNft(moodNftAddress).mintNft();
+//         // MoodNft(moodNftAddress).mintNft();
+//         BasicNft(basicNftAddress).mintNft(PUG_URI);
 //         vm.stopBroadcast();
 //     }
 // }
