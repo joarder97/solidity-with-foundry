@@ -1,3 +1,6 @@
+[rpc_endpoints]
+sepolia = "https://sepolia.infura.io/v3/f7dd0d25224849aba674dd02d7452719"
+
 [profile.default]
 src = "src"
 out = "out"
