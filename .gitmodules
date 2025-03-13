@@ -37,3 +37,6 @@
 [submodule "foundry-defi-stablecoin/lib/openzeppelin-contracts"]
 	path = foundry-defi-stablecoin/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "ccip-rebase-token/lib/openzeppelin-contracts"]
+	path = ccip-rebase-token/lib/openzeppelin-contracts
+	url = https://github.com/openzeppelin/openzeppelin-contracts
